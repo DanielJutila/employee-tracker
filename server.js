@@ -1,42 +1,20 @@
 const inquirer = require('inquirer');
-const mySQLAccess = require('./utils/mySQL-access');
-const express = require('express');
-// Import and require mysql2
 const mysql = require('mysql2/promise');
+const dbAccess = require('./utils/databaseFunctions');
 
-const PORT = process.env.PORT || 3001;
-const app = express();
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-// Connect to database
-const db = mysql.createConnection(
-  {
+const dbPromise = mysql.createConnection({
     host: 'localhost',
-    // MySQL username,
     user: 'root',
-    // MySQL password
     password: 'root',
     database: 'employee_db'
-  },
-  console.log(`Connected to the employee_db database.`)
-);
-
-// Query database
-db.query('SELECT * FROM employees', function (err, results) {
-  console.log(results);
-});
-
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  });
+  
+  dbPromise.then((db) => {
+    console.log('Connected to the employee_db database.');
+  }).catch((err) => {
+    console.error('Error connecting to database:', err);
+  });
 
 
 const questions = [{
@@ -46,7 +24,7 @@ const questions = [{
     choices: [
     'view all departments', 
     'view all roles', 
-    'Aview all employees', 
+    'view all employees', 
     'add a department',
     'add a role',
     'add an employee',
@@ -56,14 +34,55 @@ const questions = [{
 function init() {
     inquirer
       .prompt(questions)
-      .then((answers) => {
-        mySQLAccess(answers);
+      .then(async (answers) => {
+        if(answers.option == 'add a department'){
+          const departmentName = await addDepartment();
+          answers.dName = departmentName;
+        }
+        if(answers.option == 'add a role'){
+          addRole();
+        }
+        if(answers.option == 'add a employee'){
+          addEmployee();
+        }
+        const db = await dbPromise;
+        try {
+          console.log(answers.dName);
+          dbAccess(answers, db);
+
+        } catch (error) {
+          console.error('Error executing query:', error);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
       });
-  }
+      
+}
+
+async function addDepartment() {
+  const departmentName = await inquirer.prompt({
+    type: 'input',
+    name: 'dName',
+    message: 'Enter the name of the department:'
+  });
+  return departmentName.dName;
+}
+async function addRole() {
+  const roleName = await inquirer.prompt({
+    type: 'input',
+    name: 'rName',
+    message: 'Enter the name of the role:'
+  });
+}
+async function addEmployee() {
+  const employeeName = await inquirer.prompt({
+    type: 'input',
+    name: 'eName',
+    message: 'Enter the name of the employee:'
+  });
+}
 init();
-
-module.exports = db;
-
 // SELECT e.id, e.first_name, e.last_name, r.title AS role_title, e.manager_id
 // FROM employee e
 // JOIN roles r ON e.role_id = r.id;
@@ -74,3 +93,18 @@ module.exports = db;
 // FROM employee e
 // JOIN roles r ON e.role_id = r.id
 // JOIN department d ON r.department_id = d.id;
+
+
+
+// try {
+//     const [rows] = await db.query('SELECT id, name FROM department');
+//     if (rows.length > 0) {
+//       console.log('ID    Department Name');
+//       console.log('--    ---------------');
+//       rows.forEach(row => {
+//         console.log(`${row.id}     ${row.name}`);
+//       });
+//     }
+// } catch (error) {
+//   console.error('Error executing query:', error);
+// }
