@@ -14,19 +14,41 @@ function databaseAccess(data, db) {
       addDepartment(data, db);
       break;
     case 'add a role':
+      addRole(data, db);
       break;
     case 'add an employee':
+      addEmployee(data, db);
       break;
     case 'update an employee role':
       break;
     default:
-    // code block
+      console.log('Error, no option found');
+  }
+}
+async function addEmployee(answers, db) {
+  try {
+    const { eFirstName, eLastName, eRoleID } = answers;
+    const query = 'INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)'
+    await db.query(query, [eFirstName, eLastName, eRoleID]);
+    console.log('Employee added successfully!');
+  } catch (error) {
+    console.error('Error adding employee:', error);
+  }
+}
+async function addRole(answers, db) {
+  try {
+    const { rName, rSalary, rDepartment } = answers;
+    const query = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
+    await db.query(query, [rName, rSalary, rDepartment]);
+    console.log('Role added successfully.');
+  } catch (error) {
+    console.error('Error adding role:', error);
   }
 }
 
 async function addDepartment(answers, db) {
   try {
-    const departmentName = answers.dName; // Access departmentName from answers
+    const departmentName = answers.dName;
     const query = 'INSERT INTO department (name) VALUES (?)';
     await db.query(query, [departmentName]);
     console.log('Department added successfully.');
@@ -45,7 +67,7 @@ async function viewDatabase(db) {
     });
   }
 }
-async function viewAllRoles(db){
+async function viewAllRoles(db) {
   const [rows] = await db.query(`
   SELECT r.id, r.title, r.salary, d.name AS department
   FROM roles AS r
