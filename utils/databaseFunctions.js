@@ -60,6 +60,7 @@ async function addDepartment(answers, db) {
 async function viewDatabase(db) {
   const [rows] = await db.query('SELECT id, name FROM department');
   if (rows.length > 0) {
+    console.log(' ');
     console.log('ID    Department Name');
     console.log('--    ---------------');
     rows.forEach(row => {
@@ -74,6 +75,7 @@ async function viewAllRoles(db) {
   LEFT JOIN department AS d ON r.department_id = d.id
   `);
   if (rows.length > 0) {
+    console.log(' ');
     console.log('ID   Title                 Department       Salary');
     console.log('--   -----                 ----------       ------');
     rows.forEach(row => {
@@ -92,6 +94,7 @@ async function viewAllEmployees(db) {
     LEFT JOIN employee AS m ON e.manager_id = m.id
   `);
   if (rows.length > 0) {
+    console.log(' ');
     console.log('ID   First Name   Last Name   Title              Department         Salary      Manager');
     console.log('--   ----------   ---------   -----              ----------         ------      -------');
     rows.forEach(row => {

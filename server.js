@@ -10,7 +10,7 @@ const dbPromise = mysql.createConnection({
   database: 'employee_db'
 });
 
-dbPromise.then((db) => {
+dbPromise.then(() => {
   console.log('Connected to the employee_db database.');
 }).catch((err) => {
   console.error('Error connecting to database:', err);
@@ -59,7 +59,7 @@ function init() {
       } catch (error) {
         console.error('Error executing query:', error);
       }
-      init();
+      
     })
     .catch((error) => {
       console.error('Error:', error);
@@ -117,28 +117,3 @@ async function addEmployee() {
   return employeeName;
 }
 init();
-// SELECT e.id, e.first_name, e.last_name, r.title AS role_title, e.manager_id
-// FROM employee e
-// JOIN roles r ON e.role_id = r.id;
-
-// SELECT e.id AS employee_id, e.first_name, e.last_name,
-//        r.title AS role_title, r.salary,
-//        d.name AS department_name
-// FROM employee e
-// JOIN roles r ON e.role_id = r.id
-// JOIN department d ON r.department_id = d.id;
-
-
-
-// try {
-//     const [rows] = await db.query('SELECT id, name FROM department');
-//     if (rows.length > 0) {
-//       console.log('ID    Department Name');
-//       console.log('--    ---------------');
-//       rows.forEach(row => {
-//         console.log(`${row.id}     ${row.name}`);
-//       });
-//     }
-// } catch (error) {
-//   console.error('Error executing query:', error);
-// }
