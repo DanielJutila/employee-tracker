@@ -55,7 +55,7 @@ function init() {
       try {
         const db = await dbPromise;
         dbAccess(answers, db);
-        
+        init();
       } catch (error) {
         console.error('Error executing query:', error);
       }
